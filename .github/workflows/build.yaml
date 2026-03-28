@@ -1,0 +1,39 @@
+name: Build Mupen64Plus Win-x86
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-windows-x86:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install MinGW and Dependencies
+        run: |
+          sudo apt-get update
+          # x86用のMinGWとビルドツールをインストール
+          sudo apt-get install -y git build-essential mingw-w64 nasm zip
+
+      - name: Run Build Script for Win32
+        run: |
+          chmod +x build.sh
+          # スクリプト内でアーキテクチャの判別がある場合、環境変数を渡す
+          # (リポジトリのbuild.shの仕様に合わせ、必要に応じて引数を調整してください)
+          ./build.sh win32 
+
+      - name: Archive Production
+        run: |
+          # ビルドされた .exe や .dll を一つのフォルダにまとめてZIP化
+          mkdir -p release-win32
+          find . -name "*.exe" -exec cp {} release-win32/ \;
+          find . -name "*.dll" -exec cp {} release-win32/ \;
+          zip -r mupen64plus-256mb-win32.zip release-win32
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mupen64plus-win32-binaries
+          path: mupen64plus-256mb-win32.zip
