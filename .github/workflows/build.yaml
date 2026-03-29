@@ -16,7 +16,7 @@ jobs:
 
       - name: Execute Build Script
         run: |
-          chmod +x build_no_docker.sh
+          chmod +x template/win_x86/build_no_docker.sh
           template/win_x86/build_no_docker.sh
 
       - name: Upload Artifacts
